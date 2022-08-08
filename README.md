@@ -10,6 +10,8 @@ expressjs-rest-template
 ## Getting Started
 
 To get up and running on local, simply do the following:
+### create .env file
+    $ cp .env.example .env
 ### build docker images
     $ docker-compose build
 ### run app

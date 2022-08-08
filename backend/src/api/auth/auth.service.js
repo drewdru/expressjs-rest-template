@@ -7,6 +7,7 @@ import userService from '../users/users.service';
 import refreshTokenService from '../refreshTokens/refreshToken.service';
 
 const signup = async data => {
+  data.username = data.username || data.email
   const user = await User.create(data);
   const token = generateToken(user);
   const refreshToken = jwt.refreshSign(user._id);

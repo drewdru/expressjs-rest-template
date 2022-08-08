@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { logger } from '../../services';
 import Response from '../../helpers/response';
 import authService from './auth.service';
+import User from '../users/users.model';
 
 export const signup = async (req, res, next) => {
   try {
@@ -13,13 +14,24 @@ export const signup = async (req, res, next) => {
   }
 };
 
-export const login = async (req, res) => {
-  const user = req.user;
-  const ipAddress = req.ip;
-  const result = await authService.login(user, ipAddress);
-  setTokenCookie(res, result.refreshToken);
-  // return the information including token as JSON
-  return Response.success(res, result, httpStatus.OK);
+export const login = async (req, res, next) => {
+  try {
+    const data = req.body;
+    const user = await User.findOne({ email: data.email });
+    if (!user) {
+      throw new Error(`User not found with this email or password`);
+    }
+    if (!user.verifyPassword(data.password)) {
+      throw new Error(`User not found with this email or password`);
+    }
+    const ipAddress = req.ip;
+    const result = await authService.login(user, ipAddress);
+    setTokenCookie(res, result.refreshToken);
+    // return the information including token as JSON
+    return Response.success(res, result, httpStatus.OK);
+  } catch (exception) {
+    next(exception);
+  }
 };
 
 export const logout = async (req, res, next) => {
